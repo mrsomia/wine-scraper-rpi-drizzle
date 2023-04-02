@@ -3,9 +3,7 @@
     "axios": "^0.26.1",
     "cheerio": "^1.0.0-rc.10",
     "dotenv": "^16.0.0",
-    "fastify": "^3.28.0",
     "lowdb": "^3.0.0",
-    "node-schedule": "^2.1.0",
     "zod": "^3.21.4"
   },
   "devDependencies": {
