@@ -11,13 +11,19 @@ export const links = sqliteTable("links", {
     enum: ["tesco", "dunnes", "supervalu"],
   }).notNull(),
   link: text("link").notNull(),
-  itemId: integer("item_id").references(() => items.id),
+  itemId: integer("item_id")
+    .references(() => items.id)
+    .notNull(),
 });
 
 export const prices = sqliteTable("prices", {
   id: integer("id").primaryKey(),
   price: integer("price").notNull(),
-  storeName: text("store_name").references(() => links.storeName),
-  date: integer("date", { mode: "timestamp" }),
-  itemId: integer("item_id"),
+  storeName: text("store_name")
+    .references(() => links.storeName)
+    .notNull(),
+  createdAt: integer("date", { mode: "timestamp" }).default(new Date()),
+  itemId: integer("item_id")
+    .references(() => items.id)
+    .notNull(),
 });
