@@ -7,8 +7,10 @@ export const items = sqliteTable("items", {
 
 export const links = sqliteTable("links", {
   id: integer("id").primaryKey(),
-  storeName: text("store_name").notNull(),
-  link: text("link", { enum: ["tesco", "dunnes", "supervalu"] }).notNull(),
+  storeName: text("store_name", {
+    enum: ["tesco", "dunnes", "supervalu"],
+  }).notNull(),
+  link: text("link").notNull(),
   itemId: integer("item_id").references(() => items.id),
 });
 
