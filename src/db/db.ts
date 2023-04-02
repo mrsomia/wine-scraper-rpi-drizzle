@@ -4,6 +4,7 @@ import { eq } from "drizzle-orm/expressions";
 import Database from "better-sqlite3";
 import { items, prices, links } from "./schema";
 import "dotenv/config";
+import { InferModel } from "drizzle-orm";
 
 const PATH_TO_DB = process.env.PATH_TO_DB;
 
@@ -34,9 +35,17 @@ export function addPrice({
 }: {
   price: number;
   itemId: number;
-  storeName: string;
+  storeName: InferModel<typeof prices>["storeName"];
 }) {
-  db.insert(prices).values({ price, itemId, storeName });
+  return db
+    .insert(prices)
+    .values({ price, itemId, storeName, createdAt: new Date() })
+    .returning()
+    .all();
 }
 
 export type ItemAndLink = ReturnType<typeof getAllItemsWithLinks>[number];
+
+export function getAllItemsWithLatestPrices() {
+  return db.select().from(items).leftJoin(prices, eq(items.id, prices.itemId));
+}

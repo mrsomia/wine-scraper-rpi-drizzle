@@ -5,29 +5,8 @@
     {
       "idx": 0,
       "version": "5",
-      "when": 1680450392193,
-      "tag": "0000_eminent_queen_noir",
-      "breakpoints": false
-    },
-    {
-      "idx": 1,
-      "version": "5",
-      "when": 1680458913168,
-      "tag": "0001_opposite_forgotten_one",
-      "breakpoints": false
-    },
-    {
-      "idx": 2,
-      "version": "5",
-      "when": 1680459011485,
-      "tag": "0002_round_alice",
-      "breakpoints": false
-    },
-    {
-      "idx": 3,
-      "version": "5",
-      "when": 1680459739278,
-      "tag": "0003_loud_ultimatum",
+      "when": 1680465512031,
+      "tag": "0000_lovely_sprite",
       "breakpoints": false
     }
   ]

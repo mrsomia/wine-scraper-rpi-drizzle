@@ -19,10 +19,10 @@ export const links = sqliteTable("links", {
 export const prices = sqliteTable("prices", {
   id: integer("id").primaryKey(),
   price: integer("price").notNull(),
-  storeName: text("store_name")
-    .references(() => links.storeName)
-    .notNull(),
-  createdAt: integer("date", { mode: "timestamp" }).default(new Date()),
+  storeName: text("store_name", {
+    enum: ["tesco", "dunnes", "supervalu"],
+  }).notNull(),
+  createdAt: integer("date", { mode: "timestamp" }).notNull(),
   itemId: integer("item_id")
     .references(() => items.id)
     .notNull(),
