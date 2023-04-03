@@ -21,7 +21,7 @@
   },
   "scripts": {
     "start": "node ./dist/index.js",
-    "dev": "nodemon --exec tsx ./src/index.ts --ignore ./src/lib/db.json",
+    "dev": "nodemon --exec tsx --inspect ./src/index.ts --ignore ./src/lib/db.json",
     "test": "vitest",
     "coverage": "vitest --coverage",
     "setup:local": "mkdir logs; touch ./logs/logs.txt",
@@ -32,7 +32,7 @@
   },
   "name": "wine-scraper",
   "version": "1.0.0",
-  "exports": "./src/index.js",
+  "exports": "./dist/index.js",
   "author": "",
   "license": "ISC",
   "description": "",
