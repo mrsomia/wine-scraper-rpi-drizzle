@@ -22,7 +22,7 @@ export const prices = sqliteTable("prices", {
   storeName: text("store_name", {
     enum: ["tesco", "dunnes", "supervalu"],
   }).notNull(),
-  createdAt: integer("date", { mode: "timestamp" }).notNull(),
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
   itemId: integer("item_id")
     .references(() => items.id)
     .notNull(),
