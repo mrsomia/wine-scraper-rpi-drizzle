@@ -1,76 +1,69 @@
-import axios from "axios";
-import "dotenv/config"
+import "dotenv/config";
+import { getAllItemsWithLatestPrices } from "../db/db.js";
+import type { InferModel } from "drizzle-orm";
+import type { prices } from "../db/schema.js";
 
-import { Low } from "lowdb/lib";
-import { Data, Item, RecordedPrice } from "./db";
+export const PUSHOVER_URL = "https://api.pushover.net/1/messages.json";
 
-export const PUSHOVER_URL = "https://api.pushover.net/1/messages.json"
-
-export interface MessageObject {
-  change: 'up' | 'down',
-  name: string,
-  shop: string,
-  minPrice: number
-}
-
-export async function pingDetails(toPing: MessageObject[]) {
-  if (!toPing.length) return
-  let message: string = ''
+export async function pingDetails(toPing: ReturnType<typeof makeMessageArray>) {
+  if (!toPing.length) return;
+  let message: string = "";
   for (let item of toPing) {
-    message += `The lowest price of ${item.name} in ${item.shop} went ${item.change} to €${item.minPrice.toFixed(2)}\n`
+    message += `The lowest price of ${item.name} in ${
+      item.minPrice.storeName
+    } is €${item.minPrice.price.toFixed(2)}\n`;
   }
-  axios.post( PUSHOVER_URL,
-    {
+  console.log(`Sending the following message to pushover: \n${message}`);
+
+  await fetch(PUSHOVER_URL, {
+    method: "post",
+    headers: {
+      "Content-type": "application/json",
+    },
+    body: JSON.stringify({
       token: process.env.PUSHOVER_APP_KEY,
       user: process.env.PUSHOVER_USER_KEY,
-      message
-    }
-  )
+      message,
+    }),
+  });
 }
 
-function makeMessageObject(item: Item): MessageObject | void {
-  const { name, recordedPrices } = item
-  let [ first, second ] = recordedPrices.slice(-2)
-  let fMin = getMin(first)
-  let sMin
+export function makeMessageArray() {
+  const items = getAllItemsWithLatestPrices();
+  const cleanItems = formatItems(items);
+  const toPing = cleanItems.map((item) => {
+    const minPrice = item.prices.reduce((a, v) => {
+      return v.price < a.price ? v : a;
+    });
+    return { id: item.id, name: item.name, minPrice };
+  });
 
-  if (!second) return {change: 'down' , name, shop: fMin.shop, minPrice: fMin.price}
-  
-  sMin = getMin(second)
-  let { shop, price } = sMin 
-
-  if (sMin.shop && fMin.shop){
-    if (sMin.price < fMin.price) {
-      return {change: 'down' ,name, shop, minPrice: price}
-    } else if (sMin.price > fMin.price) {
-      return {change: 'up' ,name, shop, minPrice: price}
-    }
-  }
+  return toPing;
 }
 
-export function makeMessageArray(db: Low<Data>) {
-  const items = db.data?.items ?? [];
-  let toPing: MessageObject[] = []
-  for (let item of items) {
-    if (item.recordedPrices.length < 1) continue
-    let notificationObj = makeMessageObject(item)
-    if (notificationObj) toPing.push(notificationObj)
-  }
-  return toPing
-}
-
-function getMin(priceObj: RecordedPrice) {
-  const { prices } = priceObj
-  let min = {
-    shop: '',
-    price: 0
-  }
-
-  for (const shop in prices) {
-    if (!prices[shop]) continue
-    if (prices[shop] < min.price || !min.shop) {
-      min = { shop, price: prices[shop]}
+export function formatItems(
+  items: ReturnType<typeof getAllItemsWithLatestPrices>
+) {
+  type Result = {
+    id: number;
+    name: string;
+    prices: InferModel<typeof prices>[];
+  };
+  const result: Record<string, Result> = {};
+  for (const item of items) {
+    const name = item.name;
+    if (!(name in result)) {
+      result[name] = {
+        id: item.id,
+        name: item.name,
+        prices: [],
+      };
     }
+
+    const price = item.prices.at(-1);
+    if (!price) continue;
+    result[name].prices.push(price);
   }
-  return min
+
+  return Object.values(result);
 }
