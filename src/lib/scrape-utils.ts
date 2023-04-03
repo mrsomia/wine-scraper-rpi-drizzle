@@ -8,8 +8,8 @@ export async function getHTML(url: string) {
 }
 
 function validatePrice(p: unknown): number {
-  const validatedPrice = z.number().safeParse(p);
-  return validatedPrice.success ? validatedPrice.data : -1;
+  const price = z.number().parse(p);
+  return price;
 }
 
 export async function getTescoPrice(url: string) {
@@ -46,10 +46,6 @@ const scrapeFunctions = {
 };
 
 async function getPrice(itemWithLink: ItemAndLink) {
-  if (!itemWithLink.url) {
-    console.error(`No URL found for ${itemWithLink.name}`);
-    return;
-  }
   const store = itemWithLink.url.storeName;
   const url = itemWithLink.url.link;
   let price;
@@ -83,7 +79,7 @@ export async function scrapePricesAndAddToDB() {
     itemsWithLinks.map(async (itemWithLink) => {
       // Get price returns null if error
       const scrapedPrice = await getPrice(itemWithLink);
-      if (!scrapedPrice?.price) {
+      if (!scrapedPrice) {
         return null;
       }
 

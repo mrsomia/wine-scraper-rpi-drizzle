@@ -17,7 +17,7 @@ export function getAllItemsWithLinks() {
   const itemsAndLinks = db
     .select()
     .from(items)
-    .leftJoin(links, eq(items.id, links.itemId))
+    .innerJoin(links, eq(items.id, links.itemId))
     .all();
 
   return itemsAndLinks.map((itemAndLink) => {
