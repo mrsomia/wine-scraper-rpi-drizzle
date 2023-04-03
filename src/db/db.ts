@@ -1,5 +1,5 @@
 import { drizzle } from "drizzle-orm/better-sqlite3/index.js";
-import { eq, gte, desc } from "drizzle-orm/expressions.js";
+import { eq } from "drizzle-orm/expressions.js";
 //@ts-expect-error
 import Database from "better-sqlite3";
 import { items, links, prices } from "./schema.js";
@@ -47,5 +47,27 @@ export function addPrice({
 export type ItemAndLink = ReturnType<typeof getAllItemsWithLinks>[number];
 
 export function getAllItemsWithLatestPrices() {
-  return db.select().from(items).leftJoin(prices, eq(items.id, prices.itemId));
+  /*
+   * This may have worked another way
+   * SELECT items.id, items.name, prices."store_name", prices."price", prices."date" FROM items INNER JOIN prices ON items.id = prices."item_id" WHERE prices.date < 1680393981863 ORDER BY items.name DESC, prices.date DESC;
+   */
+  const itemsAndLinks = getAllItemsWithLinks();
+
+  const itemsAndPrices = itemsAndLinks.map((item) => {
+    const recordedPrices = db
+      .select()
+      .from(prices)
+      .where(eq(prices.storeName, item.url.storeName))
+      .orderBy(prices.createdAt)
+      .limit(2)
+      .all();
+
+    return {
+      id: item.id,
+      name: item.name,
+      prices: recordedPrices,
+    };
+  });
+
+  return itemsAndPrices;
 }
