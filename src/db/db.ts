@@ -1,8 +1,8 @@
-import { drizzle } from "drizzle-orm/better-sqlite3";
-import { eq } from "drizzle-orm/expressions";
+import { drizzle } from "drizzle-orm/better-sqlite3/index.js";
+import { eq, gte, desc } from "drizzle-orm/expressions.js";
 //@ts-expect-error
 import Database from "better-sqlite3";
-import { items, prices, links } from "./schema";
+import { items, links, prices } from "./schema.js";
 import "dotenv/config";
 import { InferModel } from "drizzle-orm";
 
