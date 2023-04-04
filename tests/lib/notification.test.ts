@@ -97,9 +97,4 @@ describe("Notifications", () => {
       `The lowest price of 19 crimes in supervalu is €9.00\n`
     );
   });
-
-  // TODO: format items - validates that with a given input it creates the same output
-  it("formats items as expected", () => {
-    expect(true).toBe(true);
-  });
 });
