@@ -1,9 +1,8 @@
-import { describe, it, expect, vi, afterEach } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import {
   formatItems,
   makeMessageArray,
-  pingDetails,
-  PUSHOVER_URL,
+  createMessageString,
 } from "../../src/lib/notification";
 import { getAllItemsWithLatestPrices } from "../../src/db/db.js";
 
@@ -44,10 +43,11 @@ vi.mock("../../src/db/db.js", () => {
   };
 });
 
-const fetchSpy = vi.fn();
-vi.stubGlobal("fetch", fetchSpy);
-
 describe("Notifications", () => {
+  beforeEach(() => {
+    vi.resetAllMocks();
+  });
+
   it("finds the min price of the item", () => {
     const messageArr = makeMessageArray();
     expect(messageArr).toStrictEqual([
@@ -92,8 +92,10 @@ describe("Notifications", () => {
   });
 
   it("Calls fetch with expected input", () => {
-    //TODO: Validate that it calls fetch with the message
-    expect(true).toBe(true);
+    const message = createMessageString(makeMessageArray());
+    expect(message).toBe(
+      `The lowest price of 19 crimes in supervalu is €9.00\n`
+    );
   });
 
   // TODO: format items - validates that with a given input it creates the same output
