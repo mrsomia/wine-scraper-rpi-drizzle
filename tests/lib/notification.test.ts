@@ -20,6 +20,12 @@ const items: ReturnType<typeof getAllItemsWithLatestPrices> = [
         createdAt: NOW,
         itemId: 1,
       },
+    ],
+  },
+  {
+    id: 1,
+    name: "19 crimes",
+    prices: [
       {
         id: 11,
         storeName: "tesco",
@@ -37,10 +43,13 @@ vi.mock("../../src/db/db.js", () => {
   };
 });
 
+const fetchSpy = vi.fn();
+vi.stubGlobal("fetch", fetchSpy);
 
 describe("Notifications", () => {
   it("finds the min price of the item", () => {
-    expect(makeMessageArray()).toStrictEqual([
+    const messageArr = makeMessageArray();
+    expect(messageArr).toStrictEqual([
       {
         id: 1,
         name: "19 crimes",
