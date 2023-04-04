@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
 import {
+  formatItems,
   makeMessageArray,
   pingDetails,
   PUSHOVER_URL,
@@ -60,6 +61,32 @@ describe("Notifications", () => {
           createdAt: NOW,
           itemId: 1,
         },
+      },
+    ]);
+  });
+
+  it("consolidates prices to a single item", () => {
+    const cleanItems = formatItems(items);
+    expect(cleanItems).toStrictEqual([
+      {
+        id: 1,
+        name: "19 crimes",
+        prices: [
+          {
+            id: 9,
+            storeName: "supervalu",
+            price: 9,
+            createdAt: NOW,
+            itemId: 1,
+          },
+          {
+            id: 11,
+            storeName: "tesco",
+            price: 10,
+            createdAt: NOW,
+            itemId: 1,
+          },
+        ],
       },
     ]);
   });
