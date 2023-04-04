@@ -5,16 +5,20 @@ import type { prices } from "../db/schema.js";
 
 export const PUSHOVER_URL = "https://api.pushover.net/1/messages.json";
 
-export async function pingDetails(toPing: ReturnType<typeof makeMessageArray>) {
+export function createMessageString(
+  toPing: ReturnType<typeof makeMessageArray>
+) {
   if (!toPing.length) return;
-  let message: string = "";
+  let message = "";
   for (let item of toPing) {
     message += `The lowest price of ${item.name} in ${
       item.minPrice.storeName
     } is €${item.minPrice.price.toFixed(2)}\n`;
   }
-  console.log(`Sending the following message to pushover: \n${message}`);
+  return message;
+}
 
+export async function sendMessage(message: string) {
   await fetch(PUSHOVER_URL, {
     method: "post",
     headers: {
@@ -26,6 +30,17 @@ export async function pingDetails(toPing: ReturnType<typeof makeMessageArray>) {
       message,
     }),
   });
+}
+
+export async function pingDetails(toPing: ReturnType<typeof makeMessageArray>) {
+  const message = createMessageString(toPing);
+  if (!message) {
+    console.error("No message to send message arrary provided");
+    console.error({ messageArr: toPing });
+    return;
+  }
+  console.log(`Sending the following message to pushover: \n${message}`);
+  sendMessage(message);
 }
 
 export function makeMessageArray() {
