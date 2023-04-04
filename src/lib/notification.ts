@@ -44,6 +44,8 @@ export function makeMessageArray() {
 export function formatItems(
   items: ReturnType<typeof getAllItemsWithLatestPrices>
 ) {
+  // Transforms from multiple rows with item and price in one location
+  // to one record per item, with a price for each location
   type Result = {
     id: number;
     name: string;
