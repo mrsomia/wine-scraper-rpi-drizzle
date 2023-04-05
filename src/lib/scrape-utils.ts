@@ -15,10 +15,17 @@ function validatePrice(p: unknown): number {
 export async function getTescoPrice(url: string) {
   const data = await getHTML(url);
   const $ = cheerio.load(data);
-  const priceElement = $(".price-per-sellable-unit .value");
-  const p = parseFloat(priceElement.text());
-  const price = validatePrice(p);
-  return price;
+  try {
+    const priceElement = $("span.offer-text");
+    const p = parseFloat(priceElement.text().split(" ")[0].slice(1));
+    const price = validatePrice(p);
+    return price;
+  } catch {
+    const priceElement = $(".price-per-sellable-unit .value");
+    const p = parseFloat(priceElement.text());
+    const price = validatePrice(p);
+    return price;
+  }
 }
 
 export async function getDunnesPrice(url: string) {
@@ -43,7 +50,7 @@ const scrapeFunctions = {
   tesco: getTescoPrice,
   dunnes: getDunnesPrice,
   supervalu: getSuperValuPrice,
-};
+} as const;
 
 async function getPrice(itemWithLink: ItemAndLink) {
   const store = itemWithLink.url.storeName;
