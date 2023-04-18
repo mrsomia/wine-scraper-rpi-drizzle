@@ -1,5 +1,5 @@
 import { drizzle } from "drizzle-orm/better-sqlite3/index.js";
-import { eq, and } from "drizzle-orm/expressions.js";
+import { eq, and, desc } from "drizzle-orm/expressions.js";
 //@ts-expect-error
 import Database from "better-sqlite3";
 import { items, links, prices } from "./schema.js";
@@ -58,7 +58,7 @@ export function getAllItemsWithLatestPrices() {
       .select()
       .from(prices)
       .where(eq(prices.storeName, item.url.storeName))
-      .orderBy(prices.createdAt)
+      .orderBy(desc(prices.createdAt))
       .limit(2)
       .all();
 
@@ -91,6 +91,7 @@ export function getItemsAndLast2Prices() {
     .with(p1, p2)
     .select({
       id: items.id,
+      name: items.name,
       storeName1: p1.storeName,
       createdAt1: p1.createdAt,
       price1: p1.price,
@@ -104,5 +105,5 @@ export function getItemsAndLast2Prices() {
       p2,
       and(eq(items.id, p2.itemId), eq(p1.storeName, p2.storeName), eq(p2.rn, 2))
     )
-    .toSQL();
+    .all();
 }
