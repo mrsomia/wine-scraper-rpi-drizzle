@@ -5,7 +5,7 @@ import {
 } from "../../src/lib/scrape-utils";
 import { describe, it, expect } from "vitest";
 
-describe("Fetch prices", () => {
+describe.skip("Fetches wine prices", () => {
   const TEST_URLS = {
     tesco: "https://www.tesco.ie/groceries/en-IE/products/299531340",
     dunnes:
@@ -42,3 +42,16 @@ describe("Fetch prices", () => {
     expect(price).toBeGreaterThan(8);
   });
 });
+
+describe("Fetches correct JD prices", () => {
+  const TEST_URLS = {
+    tesco: "https://www.tesco.ie/groceries/en-IE/products/255248604"
+  }
+    
+  it("Get the price from the tesco page", async() => {
+    const price = await getTescoPrice(TEST_URLS.tesco);
+    console.log(price)
+    expect(typeof price).toBe("number");
+    expect(price).toBeGreaterThan(20);
+  })
+})

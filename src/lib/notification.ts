@@ -1,5 +1,5 @@
 import "dotenv/config";
-import { getAllItemsWithLatestPrices } from "../db/db.js";
+import { getAllItemsWithLatestPrices, getItemsAndLast2Prices } from "../db/db.js";
 import type { InferModel } from "drizzle-orm";
 import type { prices } from "../db/schema.js";
 
@@ -12,8 +12,8 @@ export function createMessageString(
   let message = "";
   for (let item of toPing) {
     message += `The lowest price of ${item.name} in ${
-      item.minPrice.storeName
-    } is €${item.minPrice.price.toFixed(2)}\n`;
+      item.storeName
+    } is €${item.price?.toFixed(2)}\n`;
   }
   return message;
 }
@@ -44,43 +44,29 @@ export async function pingDetails(toPing: ReturnType<typeof makeMessageArray>) {
 }
 
 export function makeMessageArray() {
-  const items = getAllItemsWithLatestPrices();
-  const cleanItems = formatItems(items);
-  const toPing = cleanItems.map((item) => {
-    const minPrice = item.prices.reduce((a, v) => {
-      return v.price < a.price ? v : a;
-    });
-    return { id: item.id, name: item.name, minPrice };
+  const items = getItemsAndLast2Prices();
+  const groupedItems: Record<string, typeof items>= {}
+  for (const item of items) {
+    if (item.id in groupedItems) {
+      groupedItems[item.id].push(item)
+    } else {
+      groupedItems[item.id] = [item]
+    }
+  }
+
+  const toPing = Object.values(groupedItems).map((group) => {
+    return group.reduce((p,v) => {
+      return (p.price1 ?? 0) < (v.price1 ?? 0) ? p : v
+    })
+  }).map(item => {
+      return {
+        id: item.id,
+        name: item.name,
+        createdAt: item.createdAt1,
+        storeName: item.storeName1,
+        price: item.price1
+      }
   });
 
   return toPing;
-}
-
-export function formatItems(
-  items: ReturnType<typeof getAllItemsWithLatestPrices>
-) {
-  // Transforms from multiple rows with item and price in one location
-  // to one record per item, with a price for each location
-  type Result = {
-    id: number;
-    name: string;
-    prices: InferModel<typeof prices>[];
-  };
-  const result: Record<string, Result> = {};
-  for (const item of items) {
-    const name = item.name;
-    if (!(name in result)) {
-      result[name] = {
-        id: item.id,
-        name: item.name,
-        prices: [],
-      };
-    }
-
-    const price = item.prices.at(-1);
-    if (!price) continue;
-    result[name].prices.push(price);
-  }
-
-  return Object.values(result);
 }
