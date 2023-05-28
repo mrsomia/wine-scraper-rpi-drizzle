@@ -1,47 +1,21 @@
 # Wine Scraper
 
-A web scraper designed to pull prices from various Irish SuperMarkets and notify my when there is a price drop in an item I am tracking
+A web scraper designed to pull prices from various Irish SuperMarkets and notify me of the latest prices daily
 
-## Setup/installation
+## How its Made
+Tech used: Typescript, Drizzle ORM, SQLite, zod, cheerio
 
-To configure clone the repo then run the following to install all the npm packages required and set up the folder structure:
+I built this to learn Drizzle ORM, and to run using a cron job on my raspberry pi. Prisma would not work as I have a 3B+ and their rust binaries  do not compile for this arm CPU. I looked into self compiling but this gave me an excuse to try Drizzle ORM, with works in just Typescript. I added Pushover to use it to notify me, and zod for data validation.
 
-```
-npm run setup
-```
+I wrote webscrapers in cheerio for each of the supermarkets. I then validate in zod and add this price to an SQLite DB. In previous versions this app would compare if the price had changed before notifying me.
 
-Edit the new .env file with your pushover keys, in this format:
+I also used this app as a way to learn to use vitest. I tried to use jest but vitest offers a much better dev experience when setting up testing with ESM
 
-```
-PUSHOVER_APP_KEY=y87fd6g6tb7tb78s6b87ygb7d8by87
-PUSHOVER_USER_KEY=vf8sv7f8vdf87vb98sdf7b97fb97b8
-```
+I also used and configured ESBuild, I figured since this is running on the Pi it would be best to not add the overhead of using ts node or tsx.
 
-These are not real keys.
+## Optimizations/TODOs
+ - [ ] reimplement the change tracking and only push if there is a change
 
-## Running the server
+## Lessons Learned:
 
-After this you can start the server when required, using:
-
-```
-npm start
-```
-
-If you are running this remotely and wish to leave it running, you can enter CTRL-Z to suspend the process, followed by the `bg` command, to let it run in the background. Finally if you are using SSH you can run `disown -h` to ensure it runs when you are logged out
-
-## Adding new items
-
-To track new items, simply add an object in the `lib/db.json` file, to the items array with the below format and restart the server
-
-```
-{
-  "name": "19 Crimes, The Banished Dark Red Wine",
-  "URLs": {
-    "tesco": "https://www.tesco.ie/groceries/en-IE/products/299531340",
-    "dunnes": "https://www.dunnesstoresgrocery.com/sm/delivery/rsid/258/product/19-crimes-red-wine-750ml-100873366",
-    "supervalu": "https://shop.supervalu.ie/shopping/product/1531948000"
-  },
-  "recordedPrices": [
-  ]
-}
-```
+How to read docs for an earlier pre-1.0 library (with little documentation). And how to use their Discord/Support forums to find assistance (usually without asking directly but searching in the help channels).
