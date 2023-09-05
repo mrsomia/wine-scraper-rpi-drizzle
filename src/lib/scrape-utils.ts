@@ -21,7 +21,7 @@ export async function getTescoPrice(url: string) {
     const price = validatePrice(p);
     return price;
   } catch {
-    const priceElement = $(".price-per-sellable-unit .value");
+    const priceElement = $("span.value");
     const p = parseFloat(priceElement.text());
     const price = validatePrice(p);
     return price;
@@ -61,7 +61,7 @@ async function getPrice(itemWithLink: ItemAndLink) {
   } catch (e) {
     console.error(
       `Unable to fetch price for ${itemWithLink.name} in ${itemWithLink.url.storeName}}
-      URL: ${itemWithLink.url.link}`
+      URL: ${itemWithLink.url.link}`,
     );
     return null;
   }
@@ -95,13 +95,13 @@ export async function scrapePricesAndAddToDB() {
         dbPrice = savePriceToDB(scrapedPrice);
       } catch (error) {
         console.error(
-          `Unable to add prices to db for ${itemWithLink.name} in store: ${itemWithLink.url?.storeName}`
+          `Unable to add prices to db for ${itemWithLink.name} in store: ${itemWithLink.url?.storeName}`,
         );
         console.error(error);
         console.error(scrapedPrice);
       }
       return dbPrice ?? null;
-    })
+    }),
   );
   return savedPrices;
 }
